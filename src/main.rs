@@ -5,8 +5,21 @@ mod commands;
 mod errors;
 mod png;
 
+use clap::Parser;
+use commands::Commands;
 pub use errors::{Error, Result};
 
+#[derive(Debug, Parser)]
+#[clap(author, version, about, long_about = None)]
+struct Cli {
+    #[clap(value_parser)]
+    name: Option<String>,
+
+    #[clap(subcommand)]
+    command: Commands,
+}
+
 fn main() -> Result<()> {
-    todo!()
+    let cli = Cli::parse();
+    cli.command.run()
 }
