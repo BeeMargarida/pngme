@@ -17,20 +17,20 @@ impl Chunk {
     const CHUNK_TYPE_BYTES: usize = 4;
     const CRC_BYTES: usize = 4;
 
-    const TOTAL_BYTES: usize = Chunk::LENGTH_BYTES + Chunk::CHUNK_TYPE_BYTES + Chunk::CRC_BYTES;
+    pub const TOTAL_BYTES: usize = Chunk::LENGTH_BYTES + Chunk::CHUNK_TYPE_BYTES + Chunk::CRC_BYTES;
 
-    fn new(chunk_type: ChunkType, data: Vec<u8>) -> Chunk {
+    pub fn new(chunk_type: ChunkType, data: Vec<u8>) -> Chunk {
         Chunk {
             chunk_type: chunk_type,
             data: data,
         }
     }
 
-    fn length(&self) -> u32 {
+    pub fn length(&self) -> u32 {
         self.data.len() as u32
     }
 
-    fn chunk_type(&self) -> &ChunkType {
+    pub fn chunk_type(&self) -> &ChunkType {
         &self.chunk_type
     }
 
@@ -49,16 +49,15 @@ impl Chunk {
         CASTAGNOLI.checksum(&joined)
     }
 
-    fn data_as_string(&self) -> Result<String> {
+    pub fn data_as_string(&self) -> Result<String> {
         let string = std::str::from_utf8(&self.data).unwrap();
         Ok(string.to_string())
     }
 
-    fn as_bytes(&self) -> Vec<u8> {
+    pub fn as_bytes(&self) -> Vec<u8> {
         self.length()
             .to_be_bytes()
             .iter()
-            .chain(self.length().to_be_bytes().iter())
             .chain(self.chunk_type.bytes().iter())
             .chain(self.data.iter())
             .chain(self.crc().to_be_bytes().iter())

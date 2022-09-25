@@ -8,6 +8,8 @@ pub enum PNGMEErrors {
     InvalidChunkType([u8; 4]),
     InvalidChunkSize(),
     InvalidCrc(u32, u32),
+    InvalidHeader([u8; 8]),
+    UnknownChunkType(),
 }
 
 impl fmt::Display for PNGMEErrors {
@@ -21,6 +23,12 @@ impl fmt::Display for PNGMEErrors {
             }
             Self::InvalidCrc(actual, expected) => {
                 write!(f, "Invalid Crc {}, actual is {}", expected, actual)
+            }
+            Self::InvalidHeader(header) => {
+                write!(f, "Invalid header {:02x?}", header)
+            }
+            Self::UnknownChunkType() => {
+                write!(f, "Unknow chunk type")
             }
         }
     }
