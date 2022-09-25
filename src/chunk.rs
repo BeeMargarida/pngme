@@ -2,8 +2,8 @@ use crc::{Crc, CRC_32_ISO_HDLC};
 use std::fmt::Display;
 
 use crate::chunk_type::ChunkType;
+use crate::errors::PNGMEErrors::{InvalidChunkSize, InvalidChunkType, InvalidCrc};
 use crate::errors::{Error, Result};
-use crate::errors::PNGMEErrors::{InvalidChunkSize,InvalidChunkType, InvalidCrc};
 
 pub const CASTAGNOLI: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
 
@@ -55,7 +55,8 @@ impl Chunk {
     }
 
     fn as_bytes(&self) -> Vec<u8> {
-        [137, 80, 78, 71, 13, 10, 26, 10]
+        self.length()
+            .to_be_bytes()
             .iter()
             .chain(self.length().to_be_bytes().iter())
             .chain(self.chunk_type.bytes().iter())
@@ -74,7 +75,7 @@ impl TryFrom<&[u8]> for Chunk {
             return Err(InvalidChunkSize().into());
         }
 
-        let(length_bytes, value) = value.split_at(Chunk::LENGTH_BYTES);
+        let (length_bytes, value) = value.split_at(Chunk::LENGTH_BYTES);
         let length = u32::from_be_bytes(length_bytes.try_into()?) as usize;
 
         let (chunk_type_bytes, value) = value.split_at(Chunk::CHUNK_TYPE_BYTES);
@@ -82,7 +83,7 @@ impl TryFrom<&[u8]> for Chunk {
         let chunk_type = ChunkType::try_from(chunk_type_actual)?;
 
         if !chunk_type.is_valid() {
-            return Err(InvalidChunkType(chunk_type.bytes()).into())
+            return Err(InvalidChunkType(chunk_type.bytes()).into());
         }
 
         let (data_bytes, value) = value.split_at(length);
@@ -92,7 +93,7 @@ impl TryFrom<&[u8]> for Chunk {
 
         let chunk = Self {
             chunk_type,
-            data: data_bytes.to_vec()
+            data: data_bytes.to_vec(),
         };
 
         if chunk.crc() != crc {

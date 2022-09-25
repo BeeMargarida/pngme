@@ -7,7 +7,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum PNGMEErrors {
     InvalidChunkType([u8; 4]),
     InvalidChunkSize(),
-    InvalidCrc(u32, u32)
+    InvalidCrc(u32, u32),
 }
 
 impl fmt::Display for PNGMEErrors {
