@@ -1,4 +1,5 @@
 use std::fmt::Display;
+use std::fs;
 use std::str;
 
 use crate::chunk::Chunk;
@@ -11,6 +12,12 @@ pub struct Png {
 
 impl Png {
     const STANDARD_HEADER: [u8; 8] = [137, 80, 78, 71, 13, 10, 26, 10];
+
+    pub fn from_file(file_path: &String) -> Result<Self> {
+        let file = fs::read(file_path)?;
+        let png: Png = Png::try_from(file.as_ref()).unwrap();
+        Ok(png)
+    }
 
     pub fn from_chunks(chunks: Vec<Chunk>) -> Png {
         Self { chunks: chunks }
@@ -87,9 +94,17 @@ impl TryFrom<&[u8]> for Png {
 
 impl Display for Png {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let bytes = &self.as_bytes()[Png::STANDARD_HEADER.len()..];
-        let string = str::from_utf8(&bytes).unwrap_err();
-        write!(f, "{}", string.to_string())
+        writeln!(f, "PNG");
+        writeln!(f, "  Chunks:");
+
+        for e in 0..self.chunks.len() {
+            let chunk = self.chunks.get(e).unwrap();
+            writeln!(f, "    Chunk:");
+            writeln!(f, "      length: {}", chunk.length());
+            writeln!(f, "      type: {}", chunk.chunk_type());
+            writeln!(f, "      data length: {} bytes", chunk.length());
+        }
+        Ok(())
     }
 }
 
