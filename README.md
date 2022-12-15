@@ -2,7 +2,7 @@
 
 Simple CLI that lets users hide secret messages in PNGs. Made for learning purposes.
 
-Access to the tutorial followed [here](https://picklenerd.github.io/pngme_book/introduction.html).
+Access to the tutorial [here](https://picklenerd.github.io/pngme_book/introduction.html) and to the [PDF Spec](http://www.libpng.org/pub/png/spec/1.2/PNG-Structure.html).
 
 ## Usage
 
